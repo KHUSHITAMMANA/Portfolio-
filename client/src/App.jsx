@@ -1,5 +1,5 @@
 ﻿import { useState } from 'react';
-import { ArrowUpRight, Check, Download, Github, Linkedin, Mail, Menu, X } from 'lucide-react';
+import { ArrowUpRight, BriefcaseBusiness, Check, Download, Github, GraduationCap, Linkedin, Mail, Menu, X } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import { contact, education, experience, profile, projects, skills } from './data';
 
@@ -116,9 +116,15 @@ function App() {
         <div className="sidebar-block">
           <h2>Core skills</h2>
           <div className="sidebar-skills">
-            {Object.values(skills).flat().slice(0, 10).map((skill) => (
-              <span key={skill}>{skill}</span>
-            ))}
+              {Object.entries(skills).map(([category, items], index) => (
+                <div className="skill-group" key={category}>
+                  <div className="skill-heading"><span>{category}</span><span>{items.length}/5</span></div>
+                  <div className="skill-dots" aria-label={`${category}: ${items.length} of 5`}>
+                    {[0, 1, 2, 3, 4].map((dot) => <span className={dot < items.length ? 'is-filled' : ''} key={dot} />)}
+                  </div>
+                  <span className="skill-list">{items.join(' / ')}</span>
+                </div>
+              ))}
           </div>
         </div>
 
@@ -168,18 +174,27 @@ function App() {
 
         <section id="experience" className="content-section">
           <div className="section-label">02 / Experience</div>
-          <div className="experience-list">
-            {experience.map((item) => (
-              <article key={item.title + item.company}>
-                <div className="date">{item.period}</div>
-                <div>
-                  <h3>
-                    {item.title} <span>/ {item.company}</span>
-                  </h3>
-                  <p>{item.description}</p>
-                </div>
-              </article>
-            ))}
+          <div className="timeline">
+            <div className="experience-list">
+              {experience.map((item) => (
+                <article className="timeline-item" key={item.title + item.company}>
+                  <div className="timeline-node"><BriefcaseBusiness size={17} strokeWidth={2} /></div>
+                  <div className="date">{item.period}</div>
+                  <div>
+                    <h3>{item.title} <span>/ {item.company}</span></h3>
+                    <p>{item.description}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+            <article className="timeline-item education-timeline">
+              <div className="timeline-node"><GraduationCap size={18} strokeWidth={2} /></div>
+              <div className="date">{education.period}</div>
+              <div>
+                <h3>{education.degree}</h3>
+                <p>{education.school}</p>
+              </div>
+            </article>
           </div>
         </section>
 

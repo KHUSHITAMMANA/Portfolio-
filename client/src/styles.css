@@ -655,3 +655,30 @@ body { background: #ffffff; color: #111111; font-family: 'Inter', Helvetica, Ari
 .submit-button { padding: 0; border-radius: 0; background: #ffffff; color: #111111; box-shadow: none; }
 .status, .status.success, .status.error { padding: 0; border-radius: 0; background: #ffffff; color: #666666; }
 .site-footer { border-top: 0; color: #666666; }
+
+/* Infographic timeline */
+.sidebar-skills { display: grid; gap: 18px; max-width: 290px; }
+.skill-group { display: grid; gap: 7px; }
+.skill-heading { display: flex; justify-content: space-between; gap: 16px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.skill-heading span:last-child { color: #999999; font-weight: 400; }
+.skill-dots { display: flex; gap: 5px; }
+.skill-dots span { width: 10px; height: 10px; border-radius: 50%; background: #e4e4e4; }
+.skill-dots span.is-filled { background: #111111; }
+.skill-list { color: #666666; font-size: 11px; line-height: 1.5; }
+.timeline { position: relative; }
+.timeline::before { position: absolute; top: 0; bottom: 0; left: 9px; width: 2px; background: #e3e3e3; content: ''; }
+.timeline-item { position: relative; display: grid; grid-template-columns: minmax(130px, 20%) 1fr; gap: 36px; padding: 0 0 64px 48px; }
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-node { position: absolute; top: -4px; left: -1px; display: grid; width: 21px; height: 21px; place-items: center; border-radius: 50%; background: #111111; color: #ffffff; }
+.timeline-item .date { grid-column: 1; }
+.timeline-item > div:last-child { grid-column: 2; }
+.education-timeline { margin-top: 64px; }
+.education-timeline h3 { margin-bottom: 0; }
+
+@media (max-width: 760px) {
+  .timeline::before { left: 8px; }
+  .timeline-item { display: block; padding-left: 40px; }
+  .timeline-item .date { margin-bottom: 14px; }
+  .timeline-item > div:last-child { display: block; }
+  .timeline-node { left: -2px; }
+}
