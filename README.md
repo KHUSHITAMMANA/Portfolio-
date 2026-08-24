@@ -61,6 +61,8 @@ npm run dev
 
 The client runs at `http://localhost:5173` and the API at `http://localhost:5001`. Vite automatically selects the next available client port if 5173 is busy.
 
+The Vite dev server proxies `/api` requests to `http://localhost:5001`, so the local assistant and contact form use the same browser URL without CORS setup. Restart both development processes after changing server code or environment variables.
+
 To run them separately in PowerShell:
 
 ```powershell
