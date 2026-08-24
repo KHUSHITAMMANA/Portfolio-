@@ -36,6 +36,16 @@ const portfolioKnowledge = [
   'The portfolio is a React and Vite frontend with an Express API. The contact form validates input, applies rate limiting, and stores messages in Supabase PostgreSQL.',
   'Rukhayya works by clarifying the problem, finding the real constraint, shaping a focused plan, and building clear, dependable digital products with thoughtful interfaces and resilient systems.',
   'The portfolio assistant can explain Rukhayya’s profile, education, experience, projects, programming skills, and development workflow. For unrelated topics, it should politely say the portfolio does not provide that information.',
+  'Code file client/src/App.jsx is the main React application. It defines the routed Profile, Experience, Selected Work, and Contact pages, the shared sidebar and navigation, the resume PDF download, the contact form, and the floating AI assistant UI.',
+  'Code file client/src/data.js contains the portfolio content data: profile identity and contact details, skills, career experience, projects, and BCA education. The React UI imports this data instead of hardcoding repeated content in components.',
+  'Code file client/src/styles.css contains the complete responsive visual system: layout grid, typography, sage accent theme, timeline, project cards, contact form, mobile breakpoints, and floating assistant window.',
+  'Code file client/src/main.jsx is the React browser entry point. It mounts App inside React StrictMode and BrowserRouter and imports the global stylesheet.',
+  'Code file client/vite.config.js configures the Vite React plugin and proxies local /api requests from the frontend development server to the Express API at http://localhost:5001.',
+  'Code file client/index.html provides the browser document shell, metadata, page title, root element, and the client module entry script.',
+  'Code file server/src/index.js is the Express backend entry point. It loads server/.env, configures CORS, JSON parsing, rate limiting, Supabase contact storage, the /api/health and /api/contact routes, the grounded /api/chat Groq route, and production static client serving.',
+  'File server/.env.example documents local environment names: PORT, CLIENT_URL, SUPABASE_URL, SUPABASE_ANON_KEY, GROQ_API_KEY, and GROQ_MODEL. The real server/.env is ignored and must never be committed.',
+  'File render.yaml defines one Render Node web service. It installs client and server dependencies, builds the Vite client, starts Express, checks /api/health, and declares external Render variables including GROQ_API_KEY and GROQ_MODEL.',
+  'The root package.json provides install:all, dev, build, and start scripts. The production start command is node server/src/index.js.',
 ];
 
 function retrieveKnowledge(query) {
@@ -99,9 +109,12 @@ app.post('/api/chat', async (request, response) => {
     : [];
 
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000);
     const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: { Authorization: `Bearer ${process.env.GROQ_API_KEY}`, 'Content-Type': 'application/json' },
+      signal: controller.signal,
       body: JSON.stringify({
         model: groqModel,
         temperature: 0.2,
@@ -113,6 +126,7 @@ app.post('/api/chat', async (request, response) => {
         ],
       }),
     });
+    clearTimeout(timeout);
     const groqText = await groqResponse.text();
     let groqData = {};
     try { groqData = groqText ? JSON.parse(groqText) : {}; } catch { groqData = {}; }
@@ -122,7 +136,10 @@ app.post('/api/chat', async (request, response) => {
     return response.json({ answer });
   } catch (error) {
     console.error('Chat request failed:', error.message);
-    return response.status(502).json({ message: `Assistant error: ${error.message}` });
+    const message = error.name === 'AbortError'
+      ? 'The assistant took too long to respond. Please try again.'
+      : `Assistant error: ${error.message}`;
+    return response.status(502).json({ message });
   }
 });
 

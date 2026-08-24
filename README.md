@@ -111,6 +111,8 @@ This repository includes `render.yaml` for a single Render web service. The serv
 
 The floating assistant uses Groq's `qwen/qwen3.6-27b` model through `POST /api/chat`. It uses a small in-memory keyword retriever over the portfolio's profile, skills, experience, education, projects, and implementation details. No vector database or paid embedding service is required.
 
+The assistant also knows the purpose of each important project file, including `client/src/App.jsx`, `client/src/data.js`, `client/src/styles.css`, `client/src/main.jsx`, `client/vite.config.js`, `server/src/index.js`, `server/.env.example`, `render.yaml`, and the root `package.json`. Ask questions such as “what does App.jsx do?” or “where is the Render configuration?”
+
 For local development, add your Groq key to `server/.env`:
 
 ```env
