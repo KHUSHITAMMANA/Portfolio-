@@ -34,10 +34,16 @@ const portfolioKnowledge = [
   'Project Field Notes is an editorial publishing workflow built with Next.js, Supabase, and S3; it produced 2.4 times more repeat readers.',
   'Project Good Energy is a renewable-energy storefront built with React, Express, and Stripe; it delivered an 18-point lift in product clarity.',
   'The portfolio is a React and Vite frontend with an Express API. The contact form validates input, applies rate limiting, and stores messages in Supabase PostgreSQL.',
+  'Rukhayya works by clarifying the problem, finding the real constraint, shaping a focused plan, and building clear, dependable digital products with thoughtful interfaces and resilient systems.',
+  'The portfolio assistant can explain Rukhayya’s profile, education, experience, projects, programming skills, and development workflow. For unrelated topics, it should politely say the portfolio does not provide that information.',
 ];
 
 function retrieveKnowledge(query) {
-  const terms = query.toLowerCase().match(/[a-z0-9]+/g) || [];
+  const stopWords = new Set(['a', 'an', 'and', 'are', 'do', 'for', 'how', 'i', 'is', 'me', 'of', 'the', 'tell', 'to', 'u', 'what', 'who', 'you']);
+  const aliases = { work: 'workflow', working: 'workflow', process: 'workflow', build: 'building', technologies: 'skills', technology: 'skills', background: 'experience' };
+  const terms = (query.toLowerCase().match(/[a-z0-9]+/g) || [])
+    .map((term) => aliases[term] || term)
+    .filter((term) => term.length > 1 && !stopWords.has(term));
   return portfolioKnowledge
     .map((document) => ({
       document,
@@ -45,7 +51,7 @@ function retrieveKnowledge(query) {
     }))
     .filter(({ score }) => score > 0)
     .sort((first, second) => second.score - first.score)
-    .slice(0, 4)
+    .slice(0, 6)
     .map(({ document }) => document);
 }
 
@@ -55,6 +61,17 @@ function cleanAnswer(answer) {
   const thinkEnd = answer.search(/<\/think>/i);
   if (thinkEnd === -1) return 'I can help with questions about Rukhayya’s portfolio, experience, projects, and skills.';
   return answer.slice(thinkEnd + '</think>'.length).trim();
+}
+
+function getQuickAnswer(message) {
+  const normalizedMessage = message.trim().toLowerCase();
+  if (/^(hi|hello|hey|good morning|good afternoon|good evening)[!.\s]*$/.test(normalizedMessage)) {
+    return 'Hi. I can answer questions about Rukhayya Banu’s experience, projects, skills, and development workflow.';
+  }
+  if (/\b(how|what)\b.*\b(work|works|working|workflow|process|method)\b/.test(normalizedMessage)) {
+    return 'Rukhayya clarifies the problem, finds the real constraint, makes a focused plan, and builds clear, dependable products with thoughtful interfaces and resilient systems.';
+  }
+  return null;
 }
 
 app.use(cors({ origin: allowedOrigins, credentials: true }));
@@ -72,9 +89,11 @@ app.post('/api/chat', async (request, response) => {
   if (typeof message !== 'string' || !message.trim()) return response.status(400).json({ message: 'Please enter a question.' });
   if (message.trim().length > 1000) return response.status(400).json({ message: 'Please keep questions under 1000 characters.' });
   if (!process.env.GROQ_API_KEY) return response.status(503).json({ message: 'The assistant is not configured yet.' });
+  const quickAnswer = getQuickAnswer(message);
+  if (quickAnswer) return response.json({ answer: quickAnswer });
 
   const retrievedKnowledge = retrieveKnowledge(message);
-  const context = (retrievedKnowledge.length ? retrievedKnowledge : portfolioKnowledge.slice(0, 2)).join('\n');
+  const context = (retrievedKnowledge.length ? retrievedKnowledge : portfolioKnowledge).join('\n');
   const safeHistory = Array.isArray(history)
     ? history.filter((item) => item && (item.role === 'user' || item.role === 'assistant') && typeof item.content === 'string').slice(-6)
     : [];
@@ -88,7 +107,7 @@ app.post('/api/chat', async (request, response) => {
         temperature: 0.2,
         max_tokens: 800,
         messages: [
-          { role: 'system', content: `You are Rukhayya Banu's portfolio assistant. Answer politely and concisely using only the portfolio context below. If the answer is not in the context, say you do not have that information and suggest contacting Rukhayya. Never invent experience, links, contact details, or technical claims. Return only the final answer; never include hidden reasoning, thinking tags, or analysis.\n\nPortfolio context:\n${context}` },
+          { role: 'system', content: `You are Rukhayya Banu's portfolio assistant. Answer politely and concisely using only the portfolio context below. Match the answer to the user's exact question, and include all relevant facts when the question is plural or asks for a list. For questions about how Rukhayya works, use the workflow context describing how she clarifies the problem, finds constraints, makes a focused plan, and builds dependable products. If the answer is not in the context, say you do not have that information and suggest contacting Rukhayya. Never invent experience, links, contact details, or technical claims. Return only the final answer; never include hidden reasoning, thinking tags, or analysis.\n\nPortfolio context:\n${context}` },
           ...safeHistory,
           { role: 'user', content: message.trim() },
         ],
