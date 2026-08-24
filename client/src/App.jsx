@@ -172,7 +172,7 @@ function App() {
     setStatus({ type: '', text: '' });
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const apiUrl = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '').replace(/\/api$/, '');
       const response = await fetch(`${apiUrl}/api/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

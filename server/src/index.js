@@ -43,8 +43,17 @@ app.post('/api/contact', async (request, response) => {
   }
 });
 
+app.use('/api', (_request, response) => response.status(404).json({ message: 'API endpoint not found.' }));
 app.use(express.static(clientDist));
 app.get('*', (_request, response) => response.sendFile(path.join(clientDist, 'index.html')));
+
+app.use((error, _request, response, _next) => {
+  if (error instanceof SyntaxError && error.status === 400 && error.type === 'entity.parse.failed') {
+    return response.status(400).json({ message: 'Request body must be valid JSON.' });
+  }
+  console.error('Unhandled server error:', error.message);
+  return response.status(500).json({ message: 'Unexpected server error.' });
+});
 
 const server = app.listen(port, () => console.log(`Portfolio API listening on port ${port}`));
 
