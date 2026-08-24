@@ -50,7 +50,11 @@ function retrieveKnowledge(query) {
 }
 
 function cleanAnswer(answer) {
-  return answer.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+  const thinkStart = answer.search(/<think>/i);
+  if (thinkStart === -1) return answer.trim();
+  const thinkEnd = answer.search(/<\/think>/i);
+  if (thinkEnd === -1) return 'I can help with questions about Rukhayya’s portfolio, experience, projects, and skills.';
+  return answer.slice(thinkEnd + '</think>'.length).trim();
 }
 
 app.use(cors({ origin: allowedOrigins, credentials: true }));
@@ -82,7 +86,7 @@ app.post('/api/chat', async (request, response) => {
       body: JSON.stringify({
         model: groqModel,
         temperature: 0.2,
-        max_tokens: 350,
+        max_tokens: 800,
         messages: [
           { role: 'system', content: `You are Rukhayya Banu's portfolio assistant. Answer politely and concisely using only the portfolio context below. If the answer is not in the context, say you do not have that information and suggest contacting Rukhayya. Never invent experience, links, contact details, or technical claims. Return only the final answer; never include hidden reasoning, thinking tags, or analysis.\n\nPortfolio context:\n${context}` },
           ...safeHistory,
