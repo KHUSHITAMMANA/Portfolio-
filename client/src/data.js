@@ -1,7 +1,7 @@
 export const profile = {
-  name: 'KHUSHI TAMMANA',
-  role: 'Full-stack engineer / Product-minded builder',
-  title: 'Full-stack engineer & product thinker',
+  name: 'RUKHAYYA BANU',
+  role: 'BCA / Computer Applications',
+  title: 'Bachelor of Computer Applications',
   summary:
     'I build dependable digital products at the intersection of thoughtful interfaces, resilient systems, and the people who use them.',
   tagline:
@@ -9,11 +9,11 @@ export const profile = {
   availability: 'Available for select projects',
   email: 'hello@alexmorgan.dev',
   phone: '+45 30 12 34 56',
-  location: 'Copenhagen, DK',
+  location: 'Karnataka, India',
   socials: [
     { label: 'GitHub', href: 'https://github.com' },
     { label: 'LinkedIn', href: 'https://linkedin.com' },
-    { label: 'Email Alex', href: 'mailto:hello@alexmorgan.dev' },
+    { label: 'Email Rukhayya', href: 'mailto:hello@alexmorgan.dev' },
   ],
 };
 
@@ -82,13 +82,13 @@ export const projects = [
 ];
 
 export const education = {
-  degree: 'MSc, Human-Centered Computing',
-  school: 'IT University of Copenhagen',
-  period: '2014 — 2016',
+  degree: 'BCA, Computer Applications',
+  school: 'Karnataka, India',
+  period: 'Education',
 };
 
 export const contact = {
   email: 'hello@alexmorgan.dev',
   phone: '+45 30 12 34 56',
-  location: 'Copenhagen, DK',
+  location: 'Karnataka, India',
 };

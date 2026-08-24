@@ -90,14 +90,14 @@ function App() {
     <div className="resume-shell">
       <aside className="sidebar">
         <div className="sidebar-top">
-          <a className="wordmark" href="#top">AM<span>/</span>26</a>
+          <a className="wordmark" href="#top">RB<span>/</span>26</a>
           <button className="menu-toggle" aria-label="Toggle navigation" onClick={() => setMenuOpen(!menuOpen)}>
             {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
 
         <div className="sidebar-profile">
-          <img src="/assets/profile.svg" alt="Portrait of Alex Morgan" />
+          <img src="/assets/profile.svg" alt="Portrait of Rukhayya Banu" />
           <p className="availability"><span className="availability-dot" /> {profile.availability}</p>
           <h1>
             {profile.name.split(' ')[0]}<br />

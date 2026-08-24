@@ -607,3 +607,51 @@ img {
     padding: 22px 7vw 30px;
   }
 }
+
+/* Swiss typographic override */
+:root {
+  --navy: #111111;
+  --navy-soft: #111111;
+  --paper: #ffffff;
+  --panel: #ffffff;
+  --line: transparent;
+  --text: #111111;
+  --muted: #666666;
+  --accent: #111111;
+  --accent-soft: #ffffff;
+  --shadow: none;
+}
+
+body { background: #ffffff; color: #111111; font-family: 'Inter', Helvetica, Arial, sans-serif; }
+.resume-shell { display: block; }
+.sidebar { position: relative; min-height: auto; height: auto; padding: 30px var(--space) 8vh; background: #ffffff; color: #111111; }
+.sidebar-profile { margin-top: 15vh; }
+.sidebar-profile img { display: none; }
+.sidebar h1 { font-weight: 900; letter-spacing: -0.085em; }
+.sidebar-title { color: #111111; font-weight: 300; }
+.sidebar-block { border-top: 0; color: #111111; }
+.sidebar-block h2 { color: #666666; }
+.sidebar-block a:hover, .sidebar-social a:hover { color: #666666; }
+.sidebar-block span, .education span { color: #666666; }
+.sidebar-social { color: #111111; }
+.main-nav { padding: 30px var(--space) 22px; background: #ffffff; border-bottom: 0; }
+.main-nav button { color: #666666; }
+.download-link { padding: 0; border: 0; background: #ffffff; box-shadow: none; }
+.download-link:hover { border-color: transparent; color: #666666; transform: none; }
+.intro-section, .content-section, .contact-section { padding-top: 13vh; padding-bottom: 7vh; }
+.section-label, .date, .work-type { color: #666666; }
+.intro-section h2, .experience-list h3, .work-item h3, .contact-panel h2 { font-weight: 800; letter-spacing: -0.075em; }
+.intro-section p, .content-section p, .contact-panel p, .experience-list p, .work-item p { color: #666666; font-weight: 300; }
+.experience-list { gap: 64px; }
+.experience-list article, .work-item { border-top: 0; padding: 0; }
+.work-list { gap: 64px; }
+.work-number { color: #111111; opacity: 1; font-weight: 900; }
+.work-meta { color: #666666; }
+.work-meta span { color: #666666; }
+.work-meta strong { color: #111111; }
+.contact-panel { padding: 0; background: #ffffff; border: 0; border-radius: 0; box-shadow: none; }
+.field input, .field textarea { border: 0; border-radius: 0; background: #ffffff; box-shadow: none; }
+.field input:focus, .field textarea:focus { border-color: transparent; box-shadow: 0 2px 0 #111111; }
+.submit-button { padding: 0; border-radius: 0; background: #ffffff; color: #111111; box-shadow: none; }
+.status, .status.success, .status.error { padding: 0; border-radius: 0; background: #ffffff; color: #666666; }
+.site-footer { border-top: 0; color: #666666; }
