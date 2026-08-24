@@ -46,6 +46,7 @@ const portfolioKnowledge = [
   'File server/.env.example documents local environment names: PORT, CLIENT_URL, SUPABASE_URL, SUPABASE_ANON_KEY, GROQ_API_KEY, and GROQ_MODEL. The real server/.env is ignored and must never be committed.',
   'File render.yaml defines one Render Node web service. It installs client and server dependencies, builds the Vite client, starts Express, checks /api/health, and declares external Render variables including GROQ_API_KEY and GROQ_MODEL.',
   'The root package.json provides install:all, dev, build, and start scripts. The production start command is node server/src/index.js.',
+  'Website flow: the browser loads the React app from client/src/main.jsx, BrowserRouter selects the Profile, Experience, Work, or Contact page, and shared components render the navigation, profile rail, timeline, project content, form, and assistant. In local development, Vite serves the frontend and forwards /api requests to Express on port 5001. In production, the root build creates client/dist and Express serves those static files. The contact form posts to /api/contact, where Express validates and rate-limits the request before inserting it into Supabase. The assistant posts to /api/chat, where Express retrieves matching portfolio and code-file context and sends it to Groq before returning the final answer to the browser.',
 ];
 
 function retrieveKnowledge(query) {
@@ -77,6 +78,9 @@ function getQuickAnswer(message) {
   const normalizedMessage = message.trim().toLowerCase();
   if (/^(hi|hello|hey|good morning|good afternoon|good evening)[!.\s]*$/.test(normalizedMessage)) {
     return 'Hi. I can answer questions about Rukhayya Banu’s experience, projects, skills, and development workflow.';
+  }
+  if (/\b(website|site|application|app)\b/.test(normalizedMessage) && /\b(work|works|working|flow|built|architecture|run|function)\b/.test(normalizedMessage)) {
+    return 'The website uses React with Vite for the frontend and Express for the backend. BrowserRouter selects the Profile, Experience, Work, and Contact pages. Vite proxies local /api requests to Express; in production, Express serves the built client. The contact form sends validated data to /api/contact, which stores it in Supabase. The assistant sends /api/chat questions with matching portfolio and code-file context to Groq, then returns the final answer to the browser.';
   }
   if (/\b(how|what)\b.*\b(work|works|working|workflow|process|method)\b/.test(normalizedMessage)) {
     return 'Rukhayya clarifies the problem, finds the real constraint, makes a focused plan, and builds clear, dependable products with thoughtful interfaces and resilient systems.';
