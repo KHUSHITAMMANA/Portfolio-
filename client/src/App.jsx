@@ -179,8 +179,14 @@ function App() {
         body: JSON.stringify(form),
       });
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Something went wrong.');
+      const responseText = await response.text();
+      let data = {};
+      try {
+        data = responseText ? JSON.parse(responseText) : {};
+      } catch {
+        data = {};
+      }
+      if (!response.ok) throw new Error(data.message || 'The server returned an invalid response. Please try again.');
 
       setStatus({ type: 'success', text: 'Message received. I will be in touch soon.' });
       setForm({ name: '', email: '', message: '' });
