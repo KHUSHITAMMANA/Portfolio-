@@ -1,6 +1,7 @@
 ﻿import { useState } from 'react';
 import { ArrowUpRight, BriefcaseBusiness, Check, Download, Github, GraduationCap, Linkedin, Mail, Menu, X } from 'lucide-react';
 import { jsPDF } from 'jspdf';
+import { Link, NavLink, Route, Routes } from 'react-router-dom';
 import { contact, education, experience, profile, projects, skills } from './data';
 
 function downloadResume() {
@@ -46,16 +47,120 @@ function downloadResume() {
   pdf.save(`${profile.name.toLowerCase().replace(/\s+/g, '-')}-resume.pdf`);
 }
 
+function Timeline() {
+  return (
+    <div className="timeline">
+      <div className="experience-list">
+        {experience.map((item) => (
+          <article className="timeline-item" key={item.title + item.company}>
+            <div className="timeline-node"><BriefcaseBusiness size={17} strokeWidth={2} /></div>
+            <div className="date">{item.period}</div>
+            <div>
+              <h3>{item.title} <span>/ {item.company}</span></h3>
+              <p>{item.description}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+      <article className="timeline-item education-timeline">
+        <div className="timeline-node"><GraduationCap size={18} strokeWidth={2} /></div>
+        <div className="date">{education.period}</div>
+        <div>
+          <h3>{education.degree}</h3>
+          <p>{education.school}</p>
+        </div>
+      </article>
+    </div>
+  );
+}
+
+function WorkList({ limit }) {
+  const visibleProjects = limit ? projects.slice(0, limit) : projects;
+
+  return (
+    <div className="work-list">
+      {visibleProjects.map((project) => (
+        <article key={project.title} className={`work-item ${project.color}`}>
+          <div className="work-number">{project.number}</div>
+          <div>
+            <p className="work-type">{project.type}</p>
+            <h3>{project.title}</h3>
+            <p>{project.description}</p>
+            <div className="work-meta">
+              <span>{project.stack}</span>
+              <strong>{project.result}</strong>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function ContactForm({ form, status, sending, update, submit }) {
+  return (
+    <div className="contact-panel">
+      <h2>Have a good problem?</h2>
+      <p>Tell me what you’re working on, what’s stuck, or what you’re curious about.</p>
+      <form onSubmit={submit}>
+        <div className="field">
+          <label htmlFor="name">Name</label>
+          <input id="name" name="name" value={form.name} onChange={update} type="text" placeholder="Your name" required />
+        </div>
+        <div className="field">
+          <label htmlFor="email">Email</label>
+          <input id="email" name="email" value={form.email} onChange={update} type="email" placeholder="you@company.com" required />
+        </div>
+        <div className="field">
+          <label htmlFor="message">Message</label>
+          <textarea id="message" name="message" value={form.message} onChange={update} placeholder="A few words about the project..." rows="5" required />
+        </div>
+        <button type="submit" className="submit-button" disabled={sending}>
+          {sending ? 'Sending...' : <>Send message <ArrowUpRight size={16} /></>}
+        </button>
+        {status.text && <p className={`status ${status.type}`}>{status.type === 'success' ? <Check size={16} /> : null}{status.text}</p>}
+      </form>
+    </div>
+  );
+}
+
+function HomePage() {
+  return (
+    <>
+      <section className="intro-section page-hero">
+        <div className="section-label">01 / Profile</div>
+        <h2>{profile.summary}</h2>
+        <p>For the last eight years, I’ve helped teams turn fuzzy first principles into products people choose to use. I work across product strategy, interface design, and full-stack engineering to make complex things feel clear.</p>
+        <p>{profile.tagline}</p>
+      </section>
+      <section className="content-section home-preview">
+        <div className="section-label">02 / A closer look</div>
+        <div className="preview-grid">
+          <Link className="preview-link" to="/experience"><strong>Experience</strong><span>See the full career timeline <ArrowUpRight size={16} /></span></Link>
+          <Link className="preview-link" to="/work"><strong>Selected work</strong><span>Browse recent projects <ArrowUpRight size={16} /></span></Link>
+        </div>
+      </section>
+    </>
+  );
+}
+
+function ExperiencePage() {
+  return <section className="content-section"><div className="section-label">02 / Experience + Education</div><Timeline /></section>;
+}
+
+function WorkPage() {
+  return <section className="content-section"><div className="section-label">03 / Selected work</div><WorkList /></section>;
+}
+
+function ContactPage({ form, status, sending, update, submit }) {
+  return <section className="content-section contact-section"><div className="section-label">04 / Contact</div><ContactForm form={form} status={status} sending={sending} update={update} submit={submit} /></section>;
+}
+
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [status, setStatus] = useState({ type: '', text: '' });
   const [sending, setSending] = useState(false);
-
-  const goTo = (id) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-    setMenuOpen(false);
-  };
 
   const update = (event) => {
     setForm({ ...form, [event.target.name]: event.target.value });
@@ -90,7 +195,7 @@ function App() {
     <div className="resume-shell">
       <aside className="sidebar">
         <div className="sidebar-top">
-          <a className="wordmark" href="#top">RB<span>/</span>26</a>
+          <Link className="wordmark" to="/">RB<span>/</span>26</Link>
           <button className="menu-toggle" aria-label="Toggle navigation" onClick={() => setMenuOpen(!menuOpen)}>
             {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -149,110 +254,22 @@ function App() {
       <main id="top" className="main-column">
         <header className={menuOpen ? 'main-nav open' : 'main-nav'}>
           <nav>
-            <button onClick={() => goTo('about')}>Profile</button>
-            <button onClick={() => goTo('experience')}>Experience</button>
-            <button onClick={() => goTo('work')}>Selected work</button>
-            <button onClick={() => goTo('contact')}>Contact</button>
+            <NavLink to="/" onClick={() => setMenuOpen(false)}>Profile</NavLink>
+            <NavLink to="/experience" onClick={() => setMenuOpen(false)}>Experience</NavLink>
+            <NavLink to="/work" onClick={() => setMenuOpen(false)}>Selected work</NavLink>
+            <NavLink to="/contact" onClick={() => setMenuOpen(false)}>Contact</NavLink>
           </nav>
           <button className="download-link" onClick={downloadResume}>
             <Download size={15} /> Download CV
           </button>
         </header>
 
-        <section id="about" className="intro-section">
-          <div className="section-label">01 / Profile</div>
-          <div>
-            <h2>{profile.summary}</h2>
-            <p>
-              For the last eight years, I’ve helped teams turn fuzzy first principles into
-              products people choose to use. I work across product strategy, interface design,
-              and full-stack engineering to make complex things feel clear.
-            </p>
-            <p>{profile.tagline}</p>
-          </div>
-        </section>
-
-        <section id="experience" className="content-section">
-          <div className="section-label">02 / Experience</div>
-          <div className="timeline">
-            <div className="experience-list">
-              {experience.map((item) => (
-                <article className="timeline-item" key={item.title + item.company}>
-                  <div className="timeline-node"><BriefcaseBusiness size={17} strokeWidth={2} /></div>
-                  <div className="date">{item.period}</div>
-                  <div>
-                    <h3>{item.title} <span>/ {item.company}</span></h3>
-                    <p>{item.description}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
-            <article className="timeline-item education-timeline">
-              <div className="timeline-node"><GraduationCap size={18} strokeWidth={2} /></div>
-              <div className="date">{education.period}</div>
-              <div>
-                <h3>{education.degree}</h3>
-                <p>{education.school}</p>
-              </div>
-            </article>
-          </div>
-        </section>
-
-        <section id="work" className="content-section">
-          <div className="section-label">03 / Selected work</div>
-          <div className="work-list">
-            {projects.map((project) => (
-              <article key={project.title} className={`work-item ${project.color}`}>
-                <div className="work-number">{project.number}</div>
-                <div>
-                  <p className="work-type">{project.type}</p>
-                  <h3>{project.title}</h3>
-                  <p>{project.description}</p>
-                  <div className="work-meta">
-                    <span>{project.stack}</span>
-                    <strong>{project.result}</strong>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section id="contact" className="content-section contact-section">
-          <div className="section-label">04 / Contact</div>
-          <div className="contact-panel">
-            <h2>Have a good problem?</h2>
-            <p>Tell me what you’re working on, what’s stuck, or what you’re curious about.</p>
-
-            <form onSubmit={submit}>
-              <div className="field">
-                <label>Name</label>
-                <input name="name" value={form.name} onChange={update} type="text" placeholder="Your name" required />
-              </div>
-
-              <div className="field">
-                <label>Email</label>
-                <input name="email" value={form.email} onChange={update} type="email" placeholder="you@company.com" required />
-              </div>
-
-              <div className="field">
-                <label>Message</label>
-                <textarea name="message" value={form.message} onChange={update} placeholder="A few words about the project..." rows="5" required />
-              </div>
-
-              <button type="submit" className="submit-button" disabled={sending}>
-                {sending ? 'Sending...' : <>Send message <ArrowUpRight size={16} /></>}
-              </button>
-
-              {status.text && (
-                <p className={`status ${status.type}`}>
-                  {status.type === 'success' ? <Check size={16} /> : null}
-                  {status.text}
-                </p>
-              )}
-            </form>
-          </div>
-        </section>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/experience" element={<ExperiencePage />} />
+          <Route path="/work" element={<WorkPage />} />
+          <Route path="/contact" element={<ContactPage form={form} status={status} sending={sending} update={update} submit={submit} />} />
+        </Routes>
 
         <footer className="site-footer">
           <span>© 2026 {profile.name}</span>

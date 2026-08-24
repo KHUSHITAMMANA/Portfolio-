@@ -682,3 +682,45 @@ body { background: #ffffff; color: #111111; font-family: 'Inter', Helvetica, Ari
   .timeline-item > div:last-child { display: block; }
   .timeline-node { left: -2px; }
 }
+
+/* Soft accent and multipage navigation */
+:root {
+  --accent: #718b7a;
+  --accent-soft: #e8eee9;
+  --text: #343936;
+  --muted: #717873;
+  --line: #dfe5e0;
+}
+
+body { color: var(--text); }
+.wordmark, .sidebar h1, .section-label { color: var(--accent); }
+.wordmark span { color: #b4c3b8; }
+.sidebar h1 { color: var(--accent); }
+.availability-dot { background: var(--accent); }
+.sidebar-title, .sidebar-block, .education strong { color: var(--text); }
+.sidebar-block h2, .main-nav a, .main-nav button, .date, .work-type { color: var(--muted); }
+.sidebar-block a:hover, .sidebar-social a:hover, .main-nav a:hover { color: var(--accent); }
+.main-nav a { padding: 0; font-size: 11px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; }
+.main-nav a.active { color: var(--accent); }
+.main-nav .download-link { color: var(--text); }
+.intro-section h2, .experience-list h3, .work-item h3, .contact-panel h2 { color: var(--text); }
+.timeline::before { background: var(--line); }
+.timeline-node { background: var(--accent); }
+.skill-dots span { background: #e4e9e5; }
+.skill-dots span.is-filled { background: var(--accent); }
+.preview-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.preview-link { display: grid; gap: 20px; padding: 24px 0; color: var(--text); }
+.preview-link strong { font-size: clamp(28px, 3vw, 48px); font-weight: 800; letter-spacing: -0.07em; }
+.preview-link span { display: inline-flex; align-items: center; gap: 8px; color: var(--accent); font-size: 13px; }
+.preview-link:hover strong { color: var(--accent); }
+.page-hero { min-height: 70vh; }
+.home-preview { padding-top: 4vh; }
+.contact-panel form { margin-top: 48px; }
+.field input:focus, .field textarea:focus { box-shadow: 0 2px 0 var(--accent); }
+.submit-button, .submit-button:hover { color: var(--accent); }
+
+@media (max-width: 760px) {
+  .preview-grid { grid-template-columns: 1fr; gap: 8px; }
+  .page-hero { min-height: auto; }
+  .main-nav a { font-size: 10px; }
+}
