@@ -57,7 +57,11 @@ app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json({ limit: '10kb' }));
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: true, legacyHeaders: false }));
 
-app.get('/api/health', (_request, response) => response.json({ ok: true }));
+app.get('/api/health', (_request, response) => response.json({
+  ok: true,
+  groqConfigured: Boolean(process.env.GROQ_API_KEY),
+  groqModel,
+}));
 
 app.post('/api/chat', async (request, response) => {
   const { message, history = [] } = request.body || {};

@@ -97,9 +97,11 @@ This repository includes `render.yaml` for a single Render web service. The serv
 4. In the service's **Environment** settings, set:
 	- `SUPABASE_URL`: your Supabase project URL.
 	- `SUPABASE_ANON_KEY`: your Supabase anon/public key.
+	- `GROQ_API_KEY`: paste your Groq API key from the Groq Console.
+	- `GROQ_MODEL`: `qwen/qwen3.6-27b`.
 	- `CLIENT_URL`: the deployed Render URL, for example `https://portfolio-xxxx.onrender.com`.
-5. Deploy or trigger a new deploy. Render uses its own `PORT`; do not set a fixed production port.
-6. Verify `https://your-render-url.onrender.com/api/health` returns `{ "ok": true }` and open the root URL to test the portfolio and contact form.
+5. Save the environment variables and trigger a new deploy. Render uses its own `PORT`; do not set a fixed production port.
+6. Verify `https://your-render-url.onrender.com/api/health` returns `groqConfigured: true`, then open the root URL and test the assistant.
 
 `VITE_API_URL` is intentionally not required in Render. The production client calls the API through the same origin. Keep `server/.env` for local-only secrets and never commit it.
 
@@ -115,4 +117,4 @@ GROQ_API_KEY=your-groq-api-key
 
 For Render, add `GROQ_API_KEY` under the service's **Environment** settings and redeploy. Keep the key server-side; do not add it to `client/.env` or expose it as a `VITE_` variable. Without the key, the assistant remains visible but returns a configuration message.
 
-Also confirm Render has `GROQ_MODEL` set to `qwen/qwen3.6-27b`. The local `.env` file may contain a real key, but it is ignored by Git and is never uploaded to Render; secrets must be entered separately in the Render dashboard.
+Also confirm Render has `GROQ_MODEL` set to `qwen/qwen3.6-27b`. The local `.env` file may contain a real key, but it is ignored by Git and is never uploaded to Render; secrets must be entered separately in the Render dashboard. After deployment, `GET /api/health` is the safe way to confirm the key is loaded without exposing it.
