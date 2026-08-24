@@ -1,5 +1,5 @@
 ﻿import { useState } from 'react';
-import { ArrowUpRight, BriefcaseBusiness, Check, Download, Github, GraduationCap, Linkedin, Mail, Menu, X } from 'lucide-react';
+import { ArrowUpRight, BriefcaseBusiness, Check, Download, Github, GraduationCap, Linkedin, Mail, Menu, MessageCircle, Send, X } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import { Link, NavLink, Route, Routes } from 'react-router-dom';
 import { contact, education, experience, profile, projects, skills } from './data';
@@ -156,6 +156,65 @@ function ContactPage({ form, status, sending, update, submit }) {
   return <section className="content-section contact-section"><div className="section-label">04 / Contact</div><ContactForm form={form} status={status} sending={sending} update={update} submit={submit} /></section>;
 }
 
+function ChatAssistant() {
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState([{ role: 'assistant', content: 'Hi. Ask me about Rukhayya’s experience, projects, skills, or workflow.' }]);
+  const [sending, setSending] = useState(false);
+
+  const sendMessage = async (event) => {
+    event.preventDefault();
+    const text = message.trim();
+    if (!text || sending) return;
+    const nextMessages = [...messages, { role: 'user', content: text }];
+    setMessages(nextMessages);
+    setMessage('');
+    setSending(true);
+
+    try {
+      const apiUrl = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '').replace(/\/api$/, '');
+      const response = await fetch(`${apiUrl}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, history: nextMessages.slice(-6) }),
+      });
+      const responseText = await response.text();
+      let data = {};
+      try { data = responseText ? JSON.parse(responseText) : {}; } catch { data = {}; }
+      if (!response.ok) throw new Error(data.message || 'The assistant is temporarily unavailable.');
+      setMessages([...nextMessages, { role: 'assistant', content: data.answer }]);
+    } catch (error) {
+      setMessages([...nextMessages, { role: 'assistant', content: error.message }]);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <div className={`chat-assistant ${open ? 'is-open' : ''}`}>
+      {open && (
+        <section className="chat-window" aria-label="Portfolio assistant">
+          <header className="chat-header">
+            <div><strong>Portfolio assistant</strong><span>Ask about Rukhayya</span></div>
+            <button type="button" aria-label="Close assistant" onClick={() => setOpen(false)}><X size={17} /></button>
+          </header>
+          <div className="chat-messages" aria-live="polite">
+            {messages.map((item, index) => <p className={`chat-message ${item.role}`} key={`${item.role}-${index}`}>{item.content}</p>)}
+            {sending && <p className="chat-message assistant">Thinking...</p>}
+          </div>
+          <form className="chat-form" onSubmit={sendMessage}>
+            <input value={message} onChange={(event) => setMessage(event.target.value)} placeholder="Ask a question..." aria-label="Ask the assistant" maxLength="1000" />
+            <button type="submit" aria-label="Send question" disabled={sending || !message.trim()}><Send size={16} /></button>
+          </form>
+        </section>
+      )}
+      <button className="chat-trigger" type="button" aria-label={open ? 'Close portfolio assistant' : 'Open portfolio assistant'} onClick={() => setOpen(!open)}>
+        {open ? <X size={21} /> : <MessageCircle size={21} />}
+      </button>
+    </div>
+  );
+}
+
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', message: '' });
@@ -282,6 +341,7 @@ function App() {
           <span>Designed & built with care</span>
         </footer>
       </main>
+      <ChatAssistant />
     </div>
   );
 }

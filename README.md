@@ -102,3 +102,15 @@ This repository includes `render.yaml` for a single Render web service. The serv
 6. Verify `https://your-render-url.onrender.com/api/health` returns `{ "ok": true }` and open the root URL to test the portfolio and contact form.
 
 `VITE_API_URL` is intentionally not required in Render. The production client calls the API through the same origin. Keep `server/.env` for local-only secrets and never commit it.
+
+## Portfolio assistant
+
+The floating assistant uses Groq's `qwen/qwen3.6-27b` model through `POST /api/chat`. It uses a small in-memory keyword retriever over the portfolio's profile, skills, experience, education, projects, and implementation details. No vector database or paid embedding service is required.
+
+For local development, add your Groq key to `server/.env`:
+
+```env
+GROQ_API_KEY=your-groq-api-key
+```
+
+For Render, add `GROQ_API_KEY` under the service's **Environment** settings and redeploy. Keep the key server-side; do not add it to `client/.env` or expose it as a `VITE_` variable. Without the key, the assistant remains visible but returns a configuration message.
