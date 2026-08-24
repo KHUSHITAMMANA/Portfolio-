@@ -114,3 +114,5 @@ GROQ_API_KEY=your-groq-api-key
 ```
 
 For Render, add `GROQ_API_KEY` under the service's **Environment** settings and redeploy. Keep the key server-side; do not add it to `client/.env` or expose it as a `VITE_` variable. Without the key, the assistant remains visible but returns a configuration message.
+
+Also confirm Render has `GROQ_MODEL` set to `qwen/qwen3.6-27b`. The local `.env` file may contain a real key, but it is ignored by Git and is never uploaded to Render; secrets must be entered separately in the Render dashboard.

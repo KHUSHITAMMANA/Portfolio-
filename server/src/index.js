@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
@@ -10,6 +10,7 @@ const app = express();
 const port = Number(process.env.PORT || 5001);
 const currentFile = fileURLToPath(import.meta.url);
 const currentDirectory = path.dirname(currentFile);
+dotenv.config({ path: path.resolve(currentDirectory, '../.env') });
 const clientDist = path.resolve(currentDirectory, '../../client/dist');
 const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:5176,http://localhost:5177,http://localhost:5178,http://localhost:5179')
   .split(',')
@@ -18,7 +19,7 @@ const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173,http://
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY;
 const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
-const groqModel = 'qwen/qwen3.6-27b';
+const groqModel = process.env.GROQ_MODEL || 'qwen/qwen3.6-27b';
 const portfolioKnowledge = [
   'Rukhayya Banu is a Bachelor of Computer Applications graduate based in Karnataka, India.',
   'Rukhayya builds dependable digital products across thoughtful interfaces, resilient systems, and user needs.',
@@ -48,6 +49,10 @@ function retrieveKnowledge(query) {
     .map(({ document }) => document);
 }
 
+function cleanAnswer(answer) {
+  return answer.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+}
+
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json({ limit: '10kb' }));
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: true, legacyHeaders: false }));
@@ -60,7 +65,8 @@ app.post('/api/chat', async (request, response) => {
   if (message.trim().length > 1000) return response.status(400).json({ message: 'Please keep questions under 1000 characters.' });
   if (!process.env.GROQ_API_KEY) return response.status(503).json({ message: 'The assistant is not configured yet.' });
 
-  const context = retrieveKnowledge(message).join('\n') || 'No matching portfolio information was found.';
+  const retrievedKnowledge = retrieveKnowledge(message);
+  const context = (retrievedKnowledge.length ? retrievedKnowledge : portfolioKnowledge.slice(0, 2)).join('\n');
   const safeHistory = Array.isArray(history)
     ? history.filter((item) => item && (item.role === 'user' || item.role === 'assistant') && typeof item.content === 'string').slice(-6)
     : [];
@@ -74,20 +80,22 @@ app.post('/api/chat', async (request, response) => {
         temperature: 0.2,
         max_tokens: 350,
         messages: [
-          { role: 'system', content: `You are Rukhayya Banu's portfolio assistant. Answer politely and concisely using only the portfolio context below. If the answer is not in the context, say you do not have that information and suggest contacting Rukhayya. Never invent experience, links, contact details, or technical claims.\n\nPortfolio context:\n${context}` },
+          { role: 'system', content: `You are Rukhayya Banu's portfolio assistant. Answer politely and concisely using only the portfolio context below. If the answer is not in the context, say you do not have that information and suggest contacting Rukhayya. Never invent experience, links, contact details, or technical claims. Return only the final answer; never include hidden reasoning, thinking tags, or analysis.\n\nPortfolio context:\n${context}` },
           ...safeHistory,
           { role: 'user', content: message.trim() },
         ],
       }),
     });
-    const groqData = await groqResponse.json();
-    if (!groqResponse.ok) throw new Error(groqData.error?.message || 'Groq request failed.');
-    const answer = groqData.choices?.[0]?.message?.content?.trim();
+    const groqText = await groqResponse.text();
+    let groqData = {};
+    try { groqData = groqText ? JSON.parse(groqText) : {}; } catch { groqData = {}; }
+    if (!groqResponse.ok) throw new Error(groqData.error?.message || `Groq request failed with status ${groqResponse.status}.`);
+    const answer = cleanAnswer(groqData.choices?.[0]?.message?.content || '');
     if (!answer) throw new Error('Groq returned an empty answer.');
     return response.json({ answer });
   } catch (error) {
     console.error('Chat request failed:', error.message);
-    return response.status(502).json({ message: 'The assistant is temporarily unavailable. Please try again.' });
+    return response.status(502).json({ message: `Assistant error: ${error.message}` });
   }
 });
 
